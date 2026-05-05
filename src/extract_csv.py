@@ -1,30 +1,16 @@
-import pandas as pd
+from pathlib import Path
 
-df = pd.read_csv("arquivos_entrada/arquivo.csv")
+from services.atividade_service import processar_planilhas
 
-# remover separadores de milhar
-for col in df.columns:
-    if df[col].dtype == object:
-        df[col] = df[col].str.replace('.', '', regex=False)
-        df[col] = df[col].str.replace(',', '.', regex=False)
 
-# exportar com formatação
-with pd.ExcelWriter("arquivos_saida/arquivo_tratado.xlsx", engine='openpyxl') as writer:
-    df.to_excel(writer, index=False, sheet_name='Dados')
+PASTA_RAIZ = Path(__file__).resolve().parent.parent
+PASTA_ENTRADA = PASTA_RAIZ / "arquivos_entrada"
+PASTA_SAIDA = PASTA_RAIZ / "arquivos_saida"
 
-    worksheet = writer.sheets['Dados']
 
-    # ajustar largura das colunas automaticamente
-    for col in worksheet.columns:
-        max_length = 0
-        col_letter = col[0].column_letter  # letra da coluna
+def main():
+    processar_planilhas(PASTA_ENTRADA, PASTA_SAIDA)
 
-        for cell in col:
-            try:
-                if cell.value:
-                    max_length = max(max_length, len(str(cell.value)))
-            except:
-                pass
 
-        adjusted_width = max_length + 2  # espaço extra
-        worksheet.column_dimensions[col_letter].width = adjusted_width
+if __name__ == "__main__":
+    main()
